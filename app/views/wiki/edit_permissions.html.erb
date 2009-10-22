@@ -54,15 +54,26 @@
 	</tbody>
 <% end; reset_cycle %>
 </table>
+<input id="save-permissions" type="submit" value="Save">
 <% else %>
 <p class="nodata"><%= l(:label_no_data) %></p>
 <% end %>
 
-<fieldset class="box">
+<fieldset id="add_private_permissions" class="box">
   <legend>Add private permissions</legend>
-  <label for="user-select" value="ere"/>
+  <label for="user-select">Select memeber</label>
   <select id="user-select">
-    
+    <% members.each do |member| %>
+    <option value="<%= members.id %>"><%= member.name%></option>
+    <% end %>
+  </select>
+  <label for="permission-select">Select permission</label>
+  <select id="permission-select"> 
+    <option value="0">Can't see</option>
+    <option value="1">Read</option>
+    <option value="2">and Write</option>
+    <option value="2">and Edit Permissions</option>
+    <input type="submit">    
   </select>
 </fieldset>
 <!--
@@ -81,4 +92,14 @@
     background-color: transparent !important;
     width: 100px;
   } 
+  #user-select, #permission-select{
+    margin-right: 20px;
+  }
+  #save-permissions{
+    float: right;
+    margin-top: 5px;
+  }
+  #add_private_permissions{
+    clear: both;
+  }
 </style>
