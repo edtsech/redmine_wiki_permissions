@@ -9,8 +9,8 @@
 	<thead>
 	  <th><%= l(:label_user) %></th>
 	  <th><%= l(:label_role) %></th>
-	  <!--<th style="width:15%"></th>
-          <%= call_hook(:view_projects_settings_members_table_header, :project => @project) %>-->
+	  <th style="width:15%"></th>
+          <%= call_hook(:view_projects_settings_members_table_header, :project => @project) %>
 	</thead>
 	<tbody>
 	<% members.each do |member| %>
@@ -29,26 +29,26 @@
     	<tr>
     		<th>Can't see</th>
     		<th>Read </th>
-    		<th>Read & Edit </th>
-    		<th>All Permissions</th>
+    		<th>and Edit </th>
+    		<th>and Edit Permissions</th>
     	</tr>
     </thead>
     <tbody>
     	<tr>
-    		<td align="center"><input name="edit_permissions" type="radio"/></td>
-    		<td align="center"><input name="edit_permissions" type="radio"/></td>
-    		<td align="center"><input name="edit_permissions" type="radio"/></td>
-    		<td align="center"><input name="edit_permissions" type="radio"/></td>
+    	  <td align="center"><%= radio_button("project", "name", "Can't see")%></td>
+    		<td align="center"><%= radio_button("project", "name", "Read")%></td>
+    		<td align="center"><%= radio_button("project", "name", "Read & Edit")%></td>
+    		<td align="center"><%= radio_button("project", "name", "All permissions")%></td>
     	</tr>
     </tbody>
     </table>
-    </td><!--
+    </td>
     <td align="center">
       <%= link_to_remote l(:button_delete), { :url => {:controller => 'members', :action => 'destroy', :id => member},                                              
                                               :method => :post
                                             }, :title => l(:button_delete),
                                                :class => 'icon icon-del' %>
-    </td>-->
+    </td>
     <%= call_hook(:view_projects_settings_members_table_row, { :project => @project, :member => member}) %>
 	</tr>
 	</tbody>
@@ -57,6 +57,14 @@
 <% else %>
 <p class="nodata"><%= l(:label_no_data) %></p>
 <% end %>
+
+<fieldset class="box">
+  <legend>Add private permissions</legend>
+  <label for="user-select" value="ere"/>
+  <select id="user-select">
+    
+  </select>
+</fieldset>
 <!--
 <% if authorize_for('members', 'new') && !users.empty? %>
   <% remote_form_for(:member, @member, :url => {:controller => 'members', :action => 'new', :id => @project}, :method => :post) do |f| %>
@@ -71,5 +79,6 @@
   .edit_permissions_table th {
     font-weight: normal;
     background-color: transparent !important;
+    width: 100px;
   } 
 </style>
