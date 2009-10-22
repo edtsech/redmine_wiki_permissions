@@ -2,11 +2,9 @@ module WikiPermissions
   module WikiController
     def self.included base
       base.class_eval do
-        
         def permissions
           render :template => 'wiki/edit_permissions'
         end
-        
       end
     end
   end  

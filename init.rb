@@ -8,4 +8,8 @@ Redmine::Plugin.register :redmine_wiki_permissions do
   author 'Equelli'
   description 'This is a plugin for Redmine'
   version '0.0.1'
+  
+  project_module "wiki_permissions" do
+    permission :edit_wiki_permissions, { :wiki => :permissions }
+  end
 end
