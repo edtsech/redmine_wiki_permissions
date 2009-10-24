@@ -18,12 +18,6 @@
 	<tr class="<%= cycle 'odd', 'even' %>">
 	<td><%= member.name %></td>
     <td align="center">
-    <!--<% if authorize_for('members', 'edit') %>
-      <% remote_form_for(:member, member, :url => {:controller => 'members', :action => 'edit', :id => member}, :method => :post) do |f| %>
-        <%= f.select :role_id, roles.collect{|role| [role.name, role.id]}, {}, :class => "small" %>
-        <%= submit_tag l(:button_change), :class => "small" %>
-      <% end %>
-    <% end %>-->
     <table class="edit_permissions_table">
     <thead>
     	<tr>
@@ -35,10 +29,10 @@
     </thead>
     <tbody>
     	<tr>
-    	  <td align="center"><%= radio_button("project", "name", "Can't see")%></td>
-    		<td align="center"><%= radio_button("project", "name", "Read")%></td>
-    		<td align="center"><%= radio_button("project", "name", "Read & Edit")%></td>
-    		<td align="center"><%= radio_button("project", "name", "All permissions")%></td>
+    	  <td align="center"><%= radio_button("member", "#{member.id}", "cant_see")%></td>
+    		<td align="center"><%= radio_button("member", "#{member.id}", "read")%></td>
+    		<td align="center"><%= radio_button("member", "#{member.id}", "read_and_edit")%></td>
+    		<td align="center"><%= radio_button("member", "#{member.id}", "all_permissions")%></td>
     	</tr>
     </tbody>
     </table>
@@ -58,23 +52,27 @@
 <% else %>
 <p class="nodata"><%= l(:label_no_data) %></p>
 <% end %>
+<%= debug(@page) %>
 
 <fieldset id="add_private_permissions" class="box">
   <legend>Add private permissions</legend>
-  <label for="user-select">Select memeber</label>
-  <select id="user-select">
+  <% form_for :wiki_page_user_permission, :url => { :controller => "wiki", :action => "create_wiki_page_user_permissions" } do |f| %>
+  <label for="user-select">Select user</label>
+  <select id="user-select" name="wiki_page_user_permission[user_id]">
     <% members.each do |member| %>
-    <option value="<%= members.id %>"><%= member.name%></option>
+    <option value="<%= member.id %>"><%= member.name%></option>
     <% end %>
   </select>
+  <input value="<%= @page.id %>" name="wiki_page_user_permission[wiki_page_id]" style="display: none;"/>
   <label for="permission-select">Select permission</label>
-  <select id="permission-select"> 
+  <select id="permission-select" name="wiki_page_user_permission[level]"> 
     <option value="0">Can't see</option>
     <option value="1">Read</option>
     <option value="2">and Write</option>
-    <option value="2">and Edit Permissions</option>
+    <option value="3">and Edit Permissions</option>
     <input type="submit">    
   </select>
+  <% end %>
 </fieldset>
 <!--
 <% if authorize_for('members', 'new') && !users.empty? %>
