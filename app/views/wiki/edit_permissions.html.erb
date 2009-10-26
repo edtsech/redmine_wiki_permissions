@@ -2,9 +2,10 @@
 <% roles = Role.find_all_givable %>
 <% users = User.active.find(:all).sort - @project.users %>
 <% # members sorted by role position
-   members = @project.members.find(:all, :include => [:role, :user]).sort %>
-   
-<% if members.any? %>
+   members = @project.members.all %>
+
+<% if @wiki_page_user_permissions.size != 0 %>
+	<% form_for :wiki_page_user_permission, :url => { :controller => "wiki_page_user_permissions", :action => "update" } do |f| %>
 <table class="list">
 	<thead>
 	  <th><%= l(:label_user) %></th>
@@ -13,10 +14,10 @@
           <%= call_hook(:view_projects_settings_members_table_header, :project => @project) %>
 	</thead>
 	<tbody>
-	<% members.each do |member| %>
-	<% next if member.new_record? %>
+<% @wiki_page_user_permissions.each do |perm| %>
+	
 	<tr class="<%= cycle 'odd', 'even' %>">
-	<td><%= member.name %></td>
+	<td><%= perm.user.name %></td>
     <td align="center">
     <table class="edit_permissions_table">
     <thead>
@@ -29,37 +30,35 @@
     </thead>
     <tbody>
     	<tr>
-    	  <td align="center"><%= radio_button("member", "#{member.id}", "cant_see")%></td>
-    		<td align="center"><%= radio_button("member", "#{member.id}", "read")%></td>
-    		<td align="center"><%= radio_button("member", "#{member.id}", "read_and_edit")%></td>
-    		<td align="center"><%= radio_button("member", "#{member.id}", "all_permissions")%></td>
+    	  <% for i in 0..3 do %>
+    	  <td align="center"><%= radio_button_tag("wiki_page_user_permission[#{perm.id}]", i, i == perm.level)%></td>
+    		<% end %>
     	</tr>
     </tbody>
     </table>
     </td>
     <td align="center">
-      <%= link_to_remote l(:button_delete), { :url => {:controller => 'members', :action => 'destroy', :id => member},                                              
-                                              :method => :post
-                                            }, :title => l(:button_delete),
-                                               :class => 'icon icon-del' %>
+      <%= link_to l(:button_delete), {:controller => 'wiki_page_user_permissions', :action => 'destroy', :id => perm.id}, :class => 'icon icon-del' %>
     </td>
-    <%= call_hook(:view_projects_settings_members_table_row, { :project => @project, :member => member}) %>
+    <%= call_hook(:view_projects_settings_members_table_row, { :project => @project, :member => perm}) %>
 	</tr>
 	</tbody>
+
 <% end; reset_cycle %>
 </table>
-<input id="save-permissions" type="submit" value="Save">
+  <input id="save-permissions" type="submit" value="Save">
+<% end %>
 <% else %>
 <p class="nodata"><%= l(:label_no_data) %></p>
 <% end %>
-<%= debug(@page) %>
 
+<% if @page.members_without_permissions.size != 0 %>
 <fieldset id="add_private_permissions" class="box">
   <legend>Add private permissions</legend>
   <% form_for :wiki_page_user_permission, :url => { :controller => "wiki", :action => "create_wiki_page_user_permissions" } do |f| %>
   <label for="user-select">Select user</label>
-  <select id="user-select" name="wiki_page_user_permission[user_id]">
-    <% members.each do |member| %>
+  <select id="user-select" name="wiki_page_user_permission[member_id]">
+    <% @page.members_without_permissions.each do |member| %>
     <option value="<%= member.id %>"><%= member.name%></option>
     <% end %>
   </select>
@@ -67,23 +66,17 @@
   <label for="permission-select">Select permission</label>
   <select id="permission-select" name="wiki_page_user_permission[level]"> 
     <option value="0">Can't see</option>
-    <option value="1">Read</option>
+    <option value="1">Can Read</option>
     <option value="2">and Write</option>
     <option value="3">and Edit Permissions</option>
     <input type="submit">    
   </select>
   <% end %>
 </fieldset>
-<!--
-<% if authorize_for('members', 'new') && !users.empty? %>
-  <% remote_form_for(:member, @member, :url => {:controller => 'members', :action => 'new', :id => @project}, :method => :post) do |f| %>
-    <p><label for="member_user_id"><%=l(:label_member_new)%></label><br />
-    <%= f.select :user_id, users.collect{|user| [user.name, user.id]} %>
-    <%= l(:label_role) %>: <%= f.select :role_id, roles.collect{|role| [role.name, role.id]}, :selected => nil %>
-    <%= submit_tag l(:button_add) %></p>
-  <% end %>
-<% end %>
--->
+<% else -%>
+<%= "No users to adding permissions" -%>
+<% end -%>
+
 <style type="text/css" media="screen">
   .edit_permissions_table th {
     font-weight: normal;

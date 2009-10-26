@@ -1,2 +1,7 @@
 # English strings go here
 my_label: "My label"
+
+permission_level_0: Can't see
+permission_level_1: Read
+permission_level_2: Read and Edit
+permission_level_3: Read and Edit and Edit Permissions

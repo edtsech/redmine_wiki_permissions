@@ -1,7 +1,7 @@
 class CreateWikiPageUserPermissions < ActiveRecord::Migration
   def self.up
     create_table :wiki_page_user_permissions do |t|
-      t.column :user_id, :integer
+      t.column :member_id, :integer
       t.column :wiki_page_id, :integer
       t.column :level, :integer
     end

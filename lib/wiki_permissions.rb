@@ -1,34 +1,77 @@
 module WikiPermissions
+  module WikiPage
+    def self.included base
+      
+      base.class_eval do
+        has_many :permissions, :class_name => 'WikiPageUserPermission'
+      end
+      
+      def leveled_permissions level
+        debugger
+        WikiPageUserPermission.all :conditions => { :wiki_page_id => id, :level => level }
+      end
+      
+      def users_by_level level
+        users = Array.new
+        leveled_permissions(level).each do |permission|
+          users << permission.user
+        end
+        users
+      end
+
+      def users_without_permissions
+        #debugger
+        project.users - users_with_permissions
+      end
+      
+      def users_with_permissions
+        users = Array.new
+        WikiPageUserPermission.all(:conditions => { :wiki_page_id => id }).each do |permission|
+          users << permission.user
+        end
+        users        
+      end
+      
+      def members_without_permissions
+        #debugger
+        project.members - members_with_permissions
+      end
+      
+      def members_with_permissions
+        members_wp = Array.new
+        permissions.each do |permission|
+          members_wp << permission.member
+        end
+        members_wp
+      end
+    end
+  end 
+  
+  module Member
+    def self.included base
+      base.class_eval do
+        has_many :wiki_page_user_permissions
+      end
+    end
+  end
   module User
     def self.included base
       base.class_eval do
-               
+        
+        alias_method :_allowed_to?, :allowed_to? unless method_defined? :_allowed_to?
+
         def allowed_to?(action, project, options={})
-          if action[:controller] == 'wiki' and action[:action] == 'create_wiki_page_user_permissions'
+          allowed_actions = [
+            'create_wiki_page_user_permissions',
+            'destroy_wiki_page_user_permissions'
+          ]
+          
+          if action.class == Hash and action[:controller] == 'wiki' and allowed_actions.include? action[:action] 
             return true
           else
-            if project
-              # No action allowed on archived projects
-              return false unless project.active?
-              # No action allowed on disabled modules
-              return false unless project.allows_to?(action)
-              # Admin users are authorized for anything else
-              return true if admin?
-
-              role = role_for_project(project)
-              return false unless role
-              role.allowed_to?(action) && (project.is_public? || role.member?)
-
-            elsif options[:global]
-              # authorize if user has at least one role that has this permission
-              roles = memberships.collect {|m| m.role}.uniq
-              roles.detect {|r| r.allowed_to?(action)} || (self.logged? ? Role.non_member.allowed_to?(action) : Role.anonymous.allowed_to?(action))
-            else
-              false
-            end
+            _allowed_to?(action, project, options={})
           end
         end
-        
       end
     end
   end
@@ -36,8 +79,10 @@ module WikiPermissions
     def self.included base
       base.class_eval do
         
+        alias_method :_index, :index unless method_defined? :_index
+        
         def index
-          page_data_logic
+          _index
         end
         
         def page_data_logic
@@ -72,13 +117,14 @@ module WikiPermissions
         
         def permissions
           find_existing_page
+          @wiki_page_user_permissions = WikiPageUserPermission.all :conditions => { :wiki_page_id => @page.id }
           render :template => 'wiki/edit_permissions'
         end
         
         def create_wiki_page_user_permissions
           @wiki_page_user_permission = WikiPageUserPermission.new(params[:wiki_page_user_permission])
           if @wiki_page_user_permission.save
-            redirect_to :action => 'index'
+            redirect_to :action => 'permissions'
           else
             render :action => 'new'
           end
@@ -98,4 +144,6 @@ require 'dispatcher'
 
   WikiController.send :include, WikiPermissions::WikiController
   User.send :include, WikiPermissions::User
+  Member.send :include, WikiPermissions::Member
+  WikiPage.send :include, WikiPermissions::WikiPage
 end

@@ -61,22 +61,18 @@
 </div>
 <% end %>
 <table class="show-permissions">
-  <tr>
-    <td>Can't see:</td>
-    <td>Vasya Buriy, Josh Harmony, Eric Elengton, Jim Roberts, Harry Oldman, Sun Rise</td>
-  </tr>
-  <tr>
-    <td>Can Read:</td>
-    <td>Vasya Buriy, Josh Harmony, Eric Elengton, Jim Roberts, Harry Oldman, Sun Rise</td>
-  </tr>
-  <tr>
-    <td>and Edit:</td>
-    <td>Vasya Buriy, Josh Harmony, Eric Elengton, Jim Roberts, Harry Oldman, Sun Rise</td>
-  </tr>
-  <tr>
-    <td>and Edit Permissions:</td>
-    <td>Vasya Buriy, Josh Harmony, Eric Elengton, Jim Roberts, Harry Oldman, Sun Rise</td>
-  </tr>
+  <% (0..3).each do |level| -%>
+    <% if @page.users_by_level(level).size != 0 %>
+    <tr>
+      <td><%= l("permission_level_#{level.to_s}") + ':' %></td>
+      <td>
+        <% @page.users_by_level(level).each do |user| %>
+          <%= @page.users_by_level(level).last == user ? user.name + '' : user.name + ',' %>        
+        <% end %>
+      </td>
+    </tr>
+    <% end %>
+  <% end -%>
 </table>
 <p class="other-formats">
 <%= l(:label_export_to) %>
