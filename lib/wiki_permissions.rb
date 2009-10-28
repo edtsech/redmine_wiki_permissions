@@ -1,5 +1,5 @@
 module WikiPermissions
-  module WikiPage
+  module MixinWikiPage
     def self.included base
       
       base.class_eval do
@@ -7,7 +7,6 @@ module WikiPermissions
       end
       
       def leveled_permissions level
-        debugger
         WikiPageUserPermission.all :conditions => { :wiki_page_id => id, :level => level }
       end
       
@@ -45,20 +44,35 @@ module WikiPermissions
         members_wp
       end
     end
-  end 
+  end
   
-  module Member
+  module MixinMember
     def self.included base
       base.class_eval do
         has_many :wiki_page_user_permissions
       end
     end
   end
-  module User
+  
+  module MixinUser
     def self.included base
       base.class_eval do
         
         alias_method :_allowed_to?, :allowed_to? unless method_defined? :_allowed_to?
+
+        def can_edit_permissions page
+          as_member = Member.first(:conditions => { :user_id => id, :project_id => page.project.id })
+          
+          admin or
+          (as_member and
+          WikiPageUserPermission.first(
+            :conditions => {
+              :wiki_page_id => page.id,
+              :member_id => Member.first(:conditions => { :user_id => id, :project_id => page.project.id }).id,
+              :level => 3
+            }
+          ) != nil)
+        end
 
         def allowed_to?(action, project, options={})
           allowed_actions = [
@@ -66,7 +80,40 @@ module WikiPermissions
             'destroy_wiki_page_user_permissions'
           ]
           
-          if action.class == Hash and action[:controller] == 'wiki' and allowed_actions.include? action[:action] 
+          if action.class == Hash and action[:controller] == 'wiki'
+            if User.current and User.current.admin
+              return true
+            elsif [
+                'index',
+                'edit',
+                
+                'permissions',                
+                'create_wiki_page_user_permissions',
+                'update_wiki_page_user_permissions',
+                'destroy_wiki_page_user_permissions'
+              ].include? action[:action] and
+              
+              options.size != 0 and
+              
+              wiki_page = 
+                WikiPage.first(:conditions => { :wiki_id => project.wiki.id, :title => options[:params][:page] }) and
+                
+              permission = WikiPageUserPermission.first(:conditions => {
+                  :member_id => Member.first(:conditions => { :user_id => User.current.id, :project_id => project.id }),
+                  :wiki_page_id => wiki_page.id
+              }) and permission     
+              
+              return case action[:action]
+                when 'index'
+                  permission.level > 0
+                when 'edit'
+                  permission.level > 1
+                else
+                  permission.level > 2
+              end
+            end
+            _allowed_to?(action, project, options={})
+          elsif action.class == Hash and action[:controller] == 'wiki' and allowed_actions.include? action[:action] 
             return true
           else
             _allowed_to?(action, project, options={})
@@ -75,7 +122,8 @@ module WikiPermissions
       end
     end
   end
-  module WikiController
+  
+  module MixinWikiController
     def self.included base
       base.class_eval do
         
@@ -115,6 +163,11 @@ module WikiPermissions
           render :template => 'wiki/show'
         end
         
+        def authorize ctrl = params[:controller], action = params[:action]
+          allowed = User.current.allowed_to?({ :controller => ctrl, :action => action }, @project, { :params => params })
+          allowed ? true : deny_access
+        end
+        
         def permissions
           find_existing_page
           @wiki_page_user_permissions = WikiPageUserPermission.all :conditions => { :wiki_page_id => @page.id }
@@ -129,6 +182,20 @@ module WikiPermissions
             render :action => 'new'
           end
         end
+        
+        def update_wiki_page_user_permissions
+          params[:wiki_page_user_permission].each_pair do |index, level|
+            permission = WikiPageUserPermission.find index.to_i
+            permission.level = level.to_i
+            permission.save
+          end
+          redirect_to :back
+        end
+        
+        def destroy_wiki_page_user_permissions
+          WikiPageUserPermission.find(params[:permission_id]).destroy
+        	redirect_to :back
+        end
       end
     end
   end  
@@ -142,8 +209,8 @@ require 'dispatcher'
       require_dependency 'application_controller'
     end
 
-  WikiController.send :include, WikiPermissions::WikiController
-  User.send :include, WikiPermissions::User
-  Member.send :include, WikiPermissions::Member
-  WikiPage.send :include, WikiPermissions::WikiPage
+  User.send :include, WikiPermissions::MixinUser
+  Member.send :include, WikiPermissions::MixinMember
+  WikiPage.send :include, WikiPermissions::MixinWikiPage  
+  WikiController.send :include, WikiPermissions::MixinWikiController
 end

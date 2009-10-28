@@ -1,9 +1,11 @@
 <div class="contextual">
 <% if @editable %>
-<%= link_to_if_authorized( "Permissions" , {:action => 'permissions', :page => @page.title}, :class => 'icon icon-permissions', :accesskey => accesskey(:edit)) if @content.version == @page.content.version %>
+
+<% if User.current.can_edit_permissions @page %>
+<%= link_to("Permissions" , {:action => 'permissions', :page => @page.title}, :class => 'icon icon-permissions') %>
 <style type="text/css" media="screen">
   .icon-permissions {
-    background-image :url(/images/user.png);
+    background-image: url(/images/user.png);
   }
   .show-permissions {
     margin: 0;
@@ -16,6 +18,7 @@
     text-align: right;
   }
 </style>
+<% end %>
 
 <%= link_to_if_authorized(l(:button_edit), {:action => 'edit', :page => @page.title}, :class => 'icon icon-edit', :accesskey => accesskey(:edit)) if @content.version == @page.content.version %>
 <%= link_to_if_authorized(l(:button_lock), {:action => 'protect', :page => @page.title, :protected => 1}, :method => :post, :class => 'icon icon-lock') if !@page.protected? %>
