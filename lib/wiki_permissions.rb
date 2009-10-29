@@ -72,22 +72,13 @@ module WikiPermissions
         
         def can_edit? page
           as_member = Member.first(:conditions => { :user_id => id, :project_id => page.project.id })
-          admin or 
-          (as_member and 
-          (WikiPageUserPermission.first(
+          has_permission = WikiPageUserPermission.first(
             :conditions => {
               :wiki_page_id => page.id,
-              :member_id => as_member.id, 
-              :level => 2
+              :member_id => as_member.id
             }
-          ) != nil or 
-          WikiPageUserPermission.first(
-            :conditions => {
-              :wiki_page_id => page.id,
-              :member_id => as_member.id, 
-              :level => 3
-            }
-          ) != nil))
+          ).level
+          admin or as_member and has_permission > 2
         end
                 
         def can_edit_permissions? page
@@ -150,15 +141,6 @@ module WikiPermissions
           end
         end
       end
-      
-      #private
-      #  def does_have_permission?(page, member, level)
-      #    first( :conditions => {
-      #        :wiki_page_id => page.id, :member_id => as_member.id, :level => level
-      #    }).nil?
-      #  end
-      
-      
     end
   end
   
