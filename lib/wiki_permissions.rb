@@ -78,6 +78,7 @@ module WikiPermissions
               :member_id => as_member.id
             }
           ).level
+          
           admin or as_member and has_permission > 2
         end
                 
