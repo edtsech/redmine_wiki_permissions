@@ -59,8 +59,38 @@ module WikiPermissions
       base.class_eval do
         
         alias_method :_allowed_to?, :allowed_to? unless method_defined? :_allowed_to?
-
-        def can_edit_permissions page
+        
+        def not_has_permission? page
+          admin or
+          WikiPageUserPermission.first(
+            :conditions => {
+              :wiki_page_id => page.id,
+              :member_id => Member.first(:conditions => { :user_id => id, :project_id => page.project.id }).id
+            }
+          ) == nil 
+        end
+        
+        def can_edit? page
+          as_member = Member.first(:conditions => { :user_id => id, :project_id => page.project.id })
+          admin or 
+          (as_member and 
+          (WikiPageUserPermission.first(
+            :conditions => {
+              :wiki_page_id => page.id,
+              :member_id => as_member.id, 
+              :level => 2
+            }
+          ) != nil or 
+          WikiPageUserPermission.first(
+            :conditions => {
+              :wiki_page_id => page.id,
+              :member_id => as_member.id, 
+              :level => 3
+            }
+          ) != nil))
+        end
+                
+        def can_edit_permissions? page
           as_member = Member.first(:conditions => { :user_id => id, :project_id => page.project.id })
           
           admin or
@@ -68,7 +98,7 @@ module WikiPermissions
           WikiPageUserPermission.first(
             :conditions => {
               :wiki_page_id => page.id,
-              :member_id => Member.first(:conditions => { :user_id => id, :project_id => page.project.id }).id,
+              :member_id => as_member.id,
               :level => 3
             }
           ) != nil)
@@ -120,6 +150,15 @@ module WikiPermissions
           end
         end
       end
+      
+      #private
+      #  def does_have_permission?(page, member, level)
+      #    first( :conditions => {
+      #        :wiki_page_id => page.id, :member_id => as_member.id, :level => level
+      #    }).nil?
+      #  end
+      
+      
     end
   end
   
