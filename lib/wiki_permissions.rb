@@ -79,7 +79,7 @@ module WikiPermissions
             }
           ).level
           
-          admin or as_member and has_permission > 2
+          admin or as_member and has_permission >= 2
         end
                 
         def can_edit_permissions? page
