@@ -1,3 +1,14 @@
-= wiki_permissions
+= Wiki permissions
 
-Description goes here
+== Installing Redmine Wiki Permissions Plugin
+  1) script/plugin install git://github.com/edtsech/redmine_wiki_permissions.git
+
+  2) rake db:migrate_plugins
+ 
+  3) switch on "wiki permissions" module in project/settings/ > Modules
+  
+== For turn off Redmine Wiki Permissions Plugin:
+  
+  project/settings/ > Modules
+
+  

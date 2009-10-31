@@ -1,8 +1,9 @@
 <div class="contextual">
 <% if @editable %>
-
+<% if include_module_wiki_permissions? %>
 <% if User.current.can_edit_permissions? @page %>
 <%= link_to("Permissions" , {:action => 'permissions', :page => @page.title}, :class => 'icon icon-permissions') %>
+<% end %>
 <% end %>
 <style type="text/css" media="screen">
   .icon-permissions {
@@ -66,6 +67,7 @@
 <% end %>
 </div>
 <% end %>
+<% if include_module_wiki_permissions? %>
 <table class="show-permissions">
   <% (0..3).each do |level| -%>
     <% if @page.users_by_level(level).size != 0 %>
@@ -80,6 +82,7 @@
     <% end %>
   <% end -%>
 </table>
+<% end %>
 <p class="other-formats">
 <%= l(:label_export_to) %>
 <span><%= link_to 'HTML', {:page => @page.title, :export => 'html', :version => @content.version}, :class => 'html' %></span>

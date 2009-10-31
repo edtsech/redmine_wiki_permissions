@@ -1,4 +1,18 @@
 module WikiPermissions
+  module MixinSearchController
+    def self.included base
+      base.class_eval do
+        alias_method :_index, :index unless method_defined? :_index
+
+        def index
+          _index
+          debugger
+          qwe = "asdf"
+        end
+        
+      end      
+    end
+  end
   module MixinWikiPage
     def self.included base
       
@@ -19,7 +33,6 @@ module WikiPermissions
       end
 
       def users_without_permissions
-        #debugger
         project.users - users_with_permissions
       end
       
@@ -32,7 +45,6 @@ module WikiPermissions
       end
       
       def members_without_permissions
-        #debugger
         project.members - members_with_permissions
       end
       
@@ -57,7 +69,7 @@ module WikiPermissions
   module MixinUser
     def self.included base
       base.class_eval do
-        
+            
         alias_method :_allowed_to?, :allowed_to? unless method_defined? :_allowed_to?
         
         def not_has_permission? page
@@ -102,13 +114,13 @@ module WikiPermissions
             'destroy_wiki_page_user_permissions'
           ]
           
-          if action.class == Hash and action[:controller] == 'wiki'
+          if project.enabled_modules.detect { |enabled_module| enabled_module.name == 'wiki_permissions' } != nil and \
+            action.class == Hash and action[:controller] == 'wiki'
             if User.current and User.current.admin
               return true
             elsif [
                 'index',
                 'edit',
-                
                 'permissions',                
                 'create_wiki_page_user_permissions',
                 'update_wiki_page_user_permissions',
@@ -135,8 +147,8 @@ module WikiPermissions
               end
             end
             _allowed_to?(action, project, options={})
-          elsif action.class == Hash and action[:controller] == 'wiki' and allowed_actions.include? action[:action] 
-            return true
+          #elsif action.class == Hash and action[:controller] == 'wiki' and allowed_actions.include? action[:action] 
+          #  return true
           else
             _allowed_to?(action, project, options={})
           end
@@ -148,6 +160,8 @@ module WikiPermissions
   module MixinWikiController
     def self.included base
       base.class_eval do
+        
+        helper_method :include_module_wiki_permissions?
         
         alias_method :_index, :index unless method_defined? :_index
         
@@ -218,6 +232,11 @@ module WikiPermissions
           WikiPageUserPermission.find(params[:permission_id]).destroy
         	redirect_to :back
         end
+        
+        def include_module_wiki_permissions?
+          (@page.project.enabled_modules.detect { |enabled_module| enabled_module.name == 'wiki_permissions' }) != nil
+        end
+        
       end
     end
   end  
@@ -235,4 +254,5 @@ require 'dispatcher'
   Member.send :include, WikiPermissions::MixinMember
   WikiPage.send :include, WikiPermissions::MixinWikiPage  
   WikiController.send :include, WikiPermissions::MixinWikiController
+  SearchController.send :include, WikiPermissions::MixinSearchController
 end
