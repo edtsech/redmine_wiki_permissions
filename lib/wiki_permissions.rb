@@ -6,8 +6,11 @@ module WikiPermissions
 
         def index
           _index
-          debugger
-          qwe = "asdf"
+          
+          @results.delete_if do |result|
+            result.class == WikiPage and
+            not User.current.can_view? result
+          end
         end
         
       end      
@@ -106,6 +109,21 @@ module WikiPermissions
               :level => 3
             }
           ) != nil)
+        end
+        
+        def can_view? page
+          admin or (
+          
+          as_member = Member.first(
+            :conditions => { :user_id => id, :project_id => page.project.id }
+          ) and
+          
+          WikiPageUserPermission.first(
+            :conditions => {
+              :wiki_page_id => page.id,
+              :member_id => as_member.id
+            }
+          ).level >= 1)
         end
 
         def allowed_to?(action, project, options={})
