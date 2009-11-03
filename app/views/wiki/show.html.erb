@@ -23,7 +23,7 @@
   }
 </style>
 
-<% if !User.current.object_id.nil? or (User.current.not_has_permission?(@page) or User.current.can_edit?(@page)) %>
+<% if !User.current.object_id.nil? and (User.current.not_has_permission?(@page) or User.current.can_edit?(@page)) %>
 <%= link_to_if_authorized(l(:button_edit), {:action => 'edit', :page => @page.title}, :class => 'icon icon-edit', :accesskey => accesskey(:edit)) if @content.version == @page.content.version %>
 <% end%>
 
