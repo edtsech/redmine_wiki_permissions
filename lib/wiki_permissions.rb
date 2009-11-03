@@ -116,43 +116,47 @@ module WikiPermissions
             'destroy_wiki_page_user_permissions'
           ]
           
-          if project.enabled_modules.detect { |enabled_module| enabled_module.name == 'wiki_permissions' } != nil and \
-            action.class == Hash and action[:controller] == 'wiki'
-            if User.current and User.current.admin
-              return true
-            elsif [
-                'index',
-                'edit',
-                'permissions',                
-                'create_wiki_page_user_permissions',
-                'update_wiki_page_user_permissions',
-                'destroy_wiki_page_user_permissions'
-              ].include? action[:action] and
-              
-              options.size != 0 and
-              
-              wiki_page = 
-                WikiPage.first(:conditions => { :wiki_id => project.wiki.id, :title => options[:params][:page] }) and
-                
-              permission = WikiPageUserPermission.first(:conditions => {
-                  :member_id => Member.first(:conditions => { :user_id => User.current.id, :project_id => project.id }),
-                  :wiki_page_id => wiki_page.id
-              }) and permission     
-              
-              return case action[:action]
-                when 'index'
-                  permission.level > 0
-                when 'edit'
-                  permission.level > 1
-                else
-                  permission.level > 2
+          if project != nil
+            if project.enabled_modules.detect { |enabled_module| enabled_module.name == 'wiki_permissions' } != nil and \
+              action.class == Hash and action[:controller] == 'wiki'
+              if User.current and User.current.admin
+                return true
+              elsif [
+                  'index',
+                  'edit',
+                  'permissions',                
+                  'create_wiki_page_user_permissions',
+                  'update_wiki_page_user_permissions',
+                  'destroy_wiki_page_user_permissions'
+                ].include? action[:action] and
+
+                options.size != 0 and
+
+                wiki_page = 
+                  WikiPage.first(:conditions => { :wiki_id => project.wiki.id, :title => options[:params][:page] }) and
+
+                permission = WikiPageUserPermission.first(:conditions => {
+                    :member_id => Member.first(:conditions => { :user_id => User.current.id, :project_id => project.id }),
+                    :wiki_page_id => wiki_page.id
+                }) and permission     
+
+                return case action[:action]
+                  when 'index'
+                    permission.level > 0
+                  when 'edit'
+                    permission.level > 1
+                  else
+                    permission.level > 2
+                end
               end
+              _allowed_to?(action, project, options)
+            #elsif action.class == Hash and action[:controller] == 'wiki' and allowed_actions.include? action[:action] 
+            #  return true
+            else
+              _allowed_to?(action, project, options)
             end
-            _allowed_to?(action, project, options={})
-          #elsif action.class == Hash and action[:controller] == 'wiki' and allowed_actions.include? action[:action] 
-          #  return true
           else
-            _allowed_to?(action, project, options={})
+            _allowed_to?(action, project, options)
           end
         end
       end

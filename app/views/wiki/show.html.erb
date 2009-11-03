@@ -1,8 +1,10 @@
 <div class="contextual">
 <% if @editable %>
 <% if include_module_wiki_permissions? %>
+<% if !User.current.not_has_permission? @page or User.current.admin %>
 <% if User.current.can_edit_permissions? @page %>
 <%= link_to("Permissions" , {:action => 'permissions', :page => @page.title}, :class => 'icon icon-permissions') %>
+<% end %>
 <% end %>
 <% end %>
 <style type="text/css" media="screen">
