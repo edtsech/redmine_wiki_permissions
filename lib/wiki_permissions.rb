@@ -21,6 +21,7 @@ module WikiPermissions
       
       base.class_eval do
         has_many :permissions, :class_name => 'WikiPageUserPermission'
+        after_create :role_creator
       end
       
       def leveled_permissions level
@@ -58,6 +59,12 @@ module WikiPermissions
         end
         members_wp
       end
+      
+      private
+      
+        def role_creator
+          WikiPageUserPermission.create(:wiki_page_id => id, :level => 3, :member_id => self.wiki.project.members.find_by_user_id(User.current.id).id)
+        end
     end
   end
   
