@@ -1,5 +1,13 @@
 = Wiki permissions
-
+  Redmine Wiki Permission plugin adding permissions for each wiki page.
+  There are four types of permission:
+  0) Can't See
+  1) Can Read
+  2) Can Read & Edit
+  3) Can Read & Edit & Edit permissions 
+  By default admin & wiki writer have permission to Read & Edit & Edit permissions. 
+  And others permissions be the same that default redmine permissions of Wiki level.
+  
 == Installing Redmine Wiki Permissions Plugin
   1) script/plugin install git://github.com/edtsech/redmine_wiki_permissions.git
 
@@ -10,5 +18,3 @@
 == For turn off Redmine Wiki Permissions Plugin:
   
   project/settings/ > Modules
-
-  
