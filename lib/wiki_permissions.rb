@@ -7,9 +7,11 @@ module WikiPermissions
         def index
           _index
           
-          @results.delete_if do |result|
-            result.class == WikiPage and
-            not User.current.can_view? result
+          if @results != nil
+            @results.delete_if do |result|
+              result.class == WikiPage and
+              not User.current.can_view? result
+            end
           end
         end
         
