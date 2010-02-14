@@ -1,5 +1,5 @@
 = Wiki permissions
-  Redmine Wiki Permission plugin adding permissions for each wiki page.
+  Redmine Wiki Permission plugin: adding permissions for each wiki page.
   There are four types of permission:
   0) Can't See
   1) Can Read
@@ -15,6 +15,10 @@
  
   3) switch on "wiki permissions" module in project/settings/ > Modules
   
-== For turn off Redmine Wiki Permissions Plugin:
+== To turn off Redmine Wiki Permissions Plugin:
   
   project/settings/ > Modules
+
+= Contributions =
+
+ * Jonas Van der Aa (Dutch translations)
