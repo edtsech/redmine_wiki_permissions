@@ -19,6 +19,6 @@
   
   project/settings/ > Modules
 
-= Contributions =
+= Contributions
 
  * Jonas Van der Aa (Dutch translations)
