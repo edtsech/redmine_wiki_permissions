@@ -1,4 +1,5 @@
 = Wiki permissions
+
   Redmine Wiki Permission plugin: adding permissions for each wiki page.
   There are four types of permission:
   0) Can't See
@@ -19,6 +20,6 @@
   
   project/settings/ > Modules
 
-= Contributions
+== Contributions
 
  * Jonas Van der Aa (Dutch translations)

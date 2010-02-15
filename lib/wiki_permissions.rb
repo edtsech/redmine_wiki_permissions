@@ -265,9 +265,9 @@ require 'dispatcher'
       require_dependency 'application_controller'
     end
 
-  User.send :include, WikiPermissions::MixinUser
   Member.send :include, WikiPermissions::MixinMember
   WikiPage.send :include, WikiPermissions::MixinWikiPage  
   WikiController.send :include, WikiPermissions::MixinWikiController
   SearchController.send :include, WikiPermissions::MixinSearchController
+  User.send :include, WikiPermissions::MixinUser
 end
