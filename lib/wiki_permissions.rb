@@ -62,11 +62,12 @@ module WikiPermissions
         members_wp
       end
       
-      private
+      private      
       
-        def role_creator
-          WikiPageUserPermission.create(:wiki_page_id => id, :level => 3, :member_id => self.wiki.project.members.find_by_user_id(User.current.id).id)
-        end
+      def role_creator
+        member = self.wiki.project.members.find_by_user_id(User.current.id)
+        WikiPageUserPermission.create(:wiki_page_id => id, :level => 3, :member_id => member.id) unless member.nil?
+      end
     end
   end
   
