@@ -38,7 +38,7 @@
     </table>
     </td>
     <td align="center">
-      <%= link_to l(:button_delete), "/wiki/#{@project.name}/#{@page.title}/destroy_wiki_page_user_permissions?permission_id=#{perm.id}", :class => 'icon icon-del' %>
+      <%= link_to l(:button_delete), "#{root_path}wiki/#{@project.identifier}/#{@page.title}/destroy_wiki_page_user_permissions?permission_id=#{perm.id}", :class => 'icon icon-del' %>
     </td>
     <%= call_hook(:view_projects_settings_members_table_row, { :project => @project, :member => perm}) %>
 	</tr>
