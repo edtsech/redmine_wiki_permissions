@@ -1,0 +1,5 @@
+pt-BR:
+  permission_level_0: Não pode visualizar
+  permission_level_1: Ler
+  permission_level_2: Ler e Escrever
+  permission_level_3: Ler e Escrever e Editar Permissões
