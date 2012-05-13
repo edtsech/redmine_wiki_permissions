@@ -1,4 +1,4 @@
-= Wiki permissions
+= Wiki permissions http://stillmaintained.com/edtsech/redmine_wiki_permissions.png
 
   Redmine Wiki Permission plugin: adding permissions for each wiki page.
   There are four types of permission:
