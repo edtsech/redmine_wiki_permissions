@@ -1,0 +1,13 @@
+.icon-permissions {
+  background-image: url(/images/user.png);
+}
+.show-permissions {
+  margin: 0;
+  padding: 0;
+  color: #BBBBBB;
+}
+.show-permissions td {
+  padding: 0;
+  padding-right: 5px;
+  text-align: right;
+}
