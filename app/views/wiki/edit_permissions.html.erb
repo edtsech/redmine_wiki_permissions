@@ -4,6 +4,8 @@
 <% # members sorted by role position
    members = @project.members.all %>
 
+<%= link_to "Return", :action => 'show', :id => @page.title, :project_id => @page.project  %>
+
 <% if @wiki_page_user_permissions.size != 0 %>
 	<% form_for :wiki_page_user_permission, :url => { :controller => "wiki", :action => "update_wiki_page_user_permissions" } do |f| %>
 <table class="list">
@@ -38,7 +40,7 @@
     </table>
     </td>
     <td align="center">
-      <%= link_to l(:button_delete), "#{root_path}wiki/#{@project.identifier}/#{@page.title}/destroy_wiki_page_user_permissions?permission_id=#{perm.id}", :class => 'icon icon-del' %>
+    <%= link_to(l(:button_delete), {:action => 'destroy_wiki_page_user_permissions', :id => @page.title, :permission_id => perm.id }, :method => :get, :class => 'icon icon-del') %>
     </td>
     <%= call_hook(:view_projects_settings_members_table_row, { :project => @project, :member => perm}) %>
 	</tr>

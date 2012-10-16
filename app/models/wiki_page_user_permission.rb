@@ -1,5 +1,6 @@
 class WikiPageUserPermission < ActiveRecord::Base
   #attr_accessible :level, :user_id, :wiki_page_id
+  #attr_protected :level
   #belongs_to :member
   belongs_to :wiki_page
   

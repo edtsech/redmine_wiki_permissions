@@ -1,0 +1,37 @@
+<% if controller and controller.class.name == 'WikiController' and controller.action_name == "show" and @page and @page.id and @page.visible? and @editable %>
+ <% if include_module_wiki_permissions? %>
+
+  <% if !User.current.not_has_permission? @page or User.current.admin %>
+   <% if User.current.can_edit_permissions? @page %>
+     <%= link_to_if_authorized("Permissions", {:action => 'permissions', :id => @page.title}, :method => :post, :class => 'icon icon-permissions') %>
+   <% end %>
+  <% end %>
+
+  <table class="show-permissions">
+    <% (0..3).each do |level| -%>
+      <% if @page.users_by_level(level).size != 0 %>
+      <tr>
+	<td><%= l("permission_level_#{level.to_s}") + ':' %></td>
+	<td>
+	  <% @page.users_by_level(level).each do |user| %>
+	    <%= @page.users_by_level(level).last == user ? user.name + '' : user.name + ',' %>
+	  <% end %>
+	</td>
+      </tr>
+      <% end %>
+    <% end -%>
+  </table>
+
+  <script type="text/javascript">
+      $$('.other-formats')[0].insert({'before':$$('.show-permissions')[0]})
+      $$('.icon-history')[0].insert({'before':$$('.icon-permissions')[0]})
+      <% if !User.current.can_edit? @page %>
+	$$('.icon-edit')[0].style.display="none"
+	$$('.icon-lock')[0].style.display="none"
+	$$('.icon-rename')[0].style.display="none"
+	$$('.icon-del')[0].style.display="none"
+      <% end %>
+  </script>
+
+ <% end %>
+<% end %>
